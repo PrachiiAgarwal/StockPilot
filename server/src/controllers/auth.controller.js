@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
+// ==========================
+// Register User
+// ==========================
 const registerUser = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
@@ -25,11 +29,74 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
+    // Remove password before sending response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user,
+      user: userResponse,
     });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ==========================
+// Login User
+// ==========================
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Remove password before sending response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: userResponse,
+    });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -40,4 +107,5 @@ const registerUser = async (req, res) => {
 
 module.exports = {
   registerUser,
+  loginUser,
 };
