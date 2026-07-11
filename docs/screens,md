@@ -1,0 +1,23 @@
+Login
+
+Register
+
+Dashboard
+
+Products
+    ├── Add Product
+    ├── Edit Product
+    └── Product Details
+
+Categories
+
+Suppliers
+
+Warehouses
+
+Alerts
+    ├── Low Stock
+    ├── Expiring Soon
+    └── Expired Products
+
+Settings
