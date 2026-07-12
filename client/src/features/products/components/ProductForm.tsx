@@ -15,7 +15,11 @@ interface ProductFormData {
   status: string;
 }
 
-function ProductForm() {
+interface ProductFormProps {
+  onSuccess: () => void;
+}
+
+function ProductForm({ onSuccess }: ProductFormProps) {
   const {
     register,
     handleSubmit,
@@ -29,21 +33,28 @@ function ProductForm() {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      const response = await createProduct(data);
-
-      alert(response.message);
+      await createProduct(data);
 
       reset();
+
+      onSuccess();
     } catch (error: any) {
+      console.error(error);
+
       alert(
-        error?.response?.data?.message || "Something went wrong."
+        error?.response?.data?.message ||
+          "Failed to create product."
       );
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-5"
+    >
       <div className="grid grid-cols-2 gap-4">
+
         <div>
           <label className="mb-2 block text-sm text-slate-300">
             Product Name
@@ -134,8 +145,8 @@ function ProductForm() {
           <input
             type="number"
             {...register("quantity", {
-              valueAsNumber: true,
               required: true,
+              valueAsNumber: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -149,8 +160,8 @@ function ProductForm() {
           <input
             type="number"
             {...register("unitPrice", {
-              valueAsNumber: true,
               required: true,
+              valueAsNumber: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -164,8 +175,8 @@ function ProductForm() {
           <input
             type="number"
             {...register("reorderLevel", {
-              valueAsNumber: true,
               required: true,
+              valueAsNumber: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -196,6 +207,7 @@ function ProductForm() {
             <option value="Inactive">Inactive</option>
           </select>
         </div>
+
       </div>
 
       <div className="flex justify-end">

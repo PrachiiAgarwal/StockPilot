@@ -18,7 +18,10 @@ function Products() {
 
   const loadProducts = async () => {
     try {
+      setLoading(true);
+
       const data = await getProducts();
+
       setProducts(data.products);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -27,9 +30,16 @@ function Products() {
     }
   };
 
+  const handleProductCreated = async () => {
+    setIsModalOpen(false);
+
+    await loadProducts();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">
@@ -50,6 +60,7 @@ function Products() {
       </div>
 
       {/* Search */}
+
       <input
         type="text"
         placeholder="Search products..."
@@ -57,6 +68,7 @@ function Products() {
       />
 
       {/* Product Table */}
+
       {loading ? (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
           Loading products...
@@ -65,10 +77,12 @@ function Products() {
         <ProductTable products={products} />
       )}
 
-      {/* Add Product Modal */}
+      {/* Modal */}
+
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={handleProductCreated}
       />
     </div>
   );

@@ -3,11 +3,13 @@ import ProductForm from "./ProductForm";
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
 function AddProductModal({
   isOpen,
   onClose,
+  onSuccess,
 }: AddProductModalProps) {
   if (!isOpen) return null;
 
@@ -15,6 +17,7 @@ function AddProductModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-4xl rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
 
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700 p-6">
 
           <h2 className="text-2xl font-bold text-white">
@@ -30,8 +33,9 @@ function AddProductModal({
 
         </div>
 
+        {/* Form */}
         <div className="p-6">
-          <ProductForm />
+          <ProductForm onSuccess={onSuccess} />
         </div>
 
       </div>
