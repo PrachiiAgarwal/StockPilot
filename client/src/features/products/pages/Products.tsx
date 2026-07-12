@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+
+import ProductTable from "../components/ProductTable";
 import { getProducts } from "../services/product.service";
+import type { Product } from "../types/product.types";
 
 function Products() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProducts();
@@ -13,88 +17,46 @@ function Products() {
       const data = await getProducts();
       setProducts(data.products);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">
+            Products
+          </h1>
 
-      <div>
-        <h1 className="text-3xl font-bold text-white">
-          Products
-        </h1>
-
-        <p className="text-slate-400">
-          Manage your inventory
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
-
-        {products.length === 0 ? (
-          <p className="text-slate-400">
-            No products found.
+          <p className="mt-1 text-slate-400">
+            Manage your inventory
           </p>
-        ) : (
-          <table className="w-full text-left">
+        </div>
 
-            <thead>
-
-              <tr className="border-b border-slate-700">
-
-                <th className="py-3 text-slate-300">
-                  Product
-                </th>
-
-                <th className="text-slate-300">
-                  SKU
-                </th>
-
-                <th className="text-slate-300">
-                  Quantity
-                </th>
-
-                <th className="text-slate-300">
-                  Price
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {products.map((product) => (
-                <tr
-                  key={product._id}
-                  className="border-b border-slate-800"
-                >
-                  <td className="py-4 text-white">
-                    {product.productName}
-                  </td>
-
-                  <td className="text-slate-300">
-                    {product.sku}
-                  </td>
-
-                  <td className="text-slate-300">
-                    {product.quantity}
-                  </td>
-
-                  <td className="text-slate-300">
-                    ₹{product.unitPrice}
-                  </td>
-                </tr>
-              ))}
-
-            </tbody>
-
-          </table>
-        )}
-
+        <button className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+          + Add Product
+        </button>
       </div>
 
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search products..."
+        className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none placeholder:text-slate-500"
+      />
+
+      {/* Product Table */}
+      {loading ? (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
+          Loading products...
+        </div>
+      ) : (
+        <ProductTable products={products} />
+      )}
     </div>
   );
 }
