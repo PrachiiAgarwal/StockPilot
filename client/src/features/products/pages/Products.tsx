@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 
 import ProductTable from "../components/ProductTable";
+import AddProductModal from "../components/AddProductModal";
+
 import { getProducts } from "../services/product.service";
+
 import type { Product } from "../types/product.types";
 
 function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -37,7 +41,10 @@ function Products() {
           </p>
         </div>
 
-        <button className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+        >
           + Add Product
         </button>
       </div>
@@ -57,6 +64,12 @@ function Products() {
       ) : (
         <ProductTable products={products} />
       )}
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

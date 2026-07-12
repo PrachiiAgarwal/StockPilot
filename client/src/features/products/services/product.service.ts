@@ -18,3 +18,15 @@ export const getProducts = async (): Promise<ProductsResponse> => {
 
   return response.data;
 };
+
+export const createProduct = async (product: Omit<Product, "_id">) => {
+  const token = localStorage.getItem("token");
+
+  const response = await api.post("/products", product, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
