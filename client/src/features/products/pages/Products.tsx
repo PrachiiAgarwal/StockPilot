@@ -23,6 +23,13 @@ function Products() {
   const [statusFilter, setStatusFilter] =
     useState("All");
 
+  const [sortBy, setSortBy] = useState<
+    "name" | "price" | "quantity"
+  >("name");
+
+  const [sortOrder, setSortOrder] =
+    useState<"asc" | "desc">("asc");
+
   const [currentPage, setCurrentPage] =
     useState(1);
 
@@ -44,7 +51,12 @@ function Products() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter]);
+  }, [
+    searchTerm,
+    statusFilter,
+    sortBy,
+    sortOrder,
+  ]);
 
   const loadProducts = async () => {
     try {
@@ -135,7 +147,7 @@ function Products() {
         .toLowerCase()
         .trim();
 
-      return products.filter(
+      const filtered = products.filter(
         (product) => {
           const matchesSearch =
             product.productName
@@ -159,10 +171,43 @@ function Products() {
           );
         }
       );
+
+      filtered.sort((a, b) => {
+        let comparison = 0;
+
+        switch (sortBy) {
+          case "name":
+            comparison =
+              a.productName.localeCompare(
+                b.productName
+              );
+            break;
+
+          case "price":
+            comparison =
+              a.unitPrice -
+              b.unitPrice;
+            break;
+
+          case "quantity":
+            comparison =
+              a.quantity -
+              b.quantity;
+            break;
+        }
+
+        return sortOrder === "asc"
+          ? comparison
+          : -comparison;
+      });
+
+      return filtered;
     }, [
       products,
       searchTerm,
       statusFilter,
+      sortBy,
+      sortOrder,
     ]);
 
   const totalPages = Math.ceil(
@@ -204,7 +249,7 @@ function Products() {
 
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
 
         <input
           type="text"
@@ -238,11 +283,55 @@ function Products() {
           <option value="Inactive">
             Inactive
           </option>
-
         </select>
 
-      </div>
-            {loading ? (
+        <select
+          value={sortBy}
+          onChange={(e) =>
+            setSortBy(
+              e.target.value as
+                | "name"
+                | "price"
+                | "quantity"
+            )
+          }
+          className="rounded-lg border border-slate-700 bg-slate-900 px-4 text-white outline-none"
+        >
+          <option value="name">
+            Sort by Name
+          </option>
+
+          <option value="price">
+            Sort by Price
+          </option>
+
+          <option value="quantity">
+            Sort by Quantity
+          </option>
+        </select>
+
+        <select
+          value={sortOrder}
+          onChange={(e) =>
+            setSortOrder(
+              e.target.value as
+                | "asc"
+                | "desc"
+            )
+          }
+          className="rounded-lg border border-slate-700 bg-slate-900 px-4 text-white outline-none"
+        >
+          <option value="asc">
+            Ascending
+          </option>
+
+          <option value="desc">
+            Descending
+          </option>
+        </select>
+              </div>
+
+      {loading ? (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
           Loading products...
         </div>

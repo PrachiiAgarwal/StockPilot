@@ -7,39 +7,12 @@ import {
   CalendarClock,
 } from "lucide-react";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Legend,
-} from "recharts";
-
-import {
-  getDashboardStats,
-} from "../services/dashboard.service";
-
-const COLORS = [
-  "#3b82f6",
-  "#22c55e",
-  "#eab308",
-  "#ef4444",
-  "#8b5cf6",
-  "#14b8a6",
-];
+import { getDashboardStats } from "../services/dashboard.service";
 
 function Dashboard() {
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [stats, setStats] =
-    useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     loadDashboard();
@@ -47,8 +20,7 @@ function Dashboard() {
 
   const loadDashboard = async () => {
     try {
-      const data =
-        await getDashboardStats();
+      const data = await getDashboardStats();
 
       setStats(data);
     } catch (error) {
@@ -61,8 +33,7 @@ function Dashboard() {
   const cards = [
     {
       title: "Total Products",
-      value:
-        stats?.totalProducts ?? 0,
+      value: stats?.totalProducts ?? 0,
       icon: Package,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
@@ -76,16 +47,14 @@ function Dashboard() {
     },
     {
       title: "Low Stock",
-      value:
-        stats?.lowStockProducts ?? 0,
+      value: stats?.lowStockProducts ?? 0,
       icon: AlertTriangle,
       color: "text-yellow-500",
       bg: "bg-yellow-500/10",
     },
     {
       title: "Expiring Soon",
-      value:
-        stats?.expiringSoon ?? 0,
+      value: stats?.expiringSoon ?? 0,
       icon: CalendarClock,
       color: "text-red-500",
       bg: "bg-red-500/10",
@@ -130,9 +99,7 @@ function Dashboard() {
                       </h2>
                     </div>
 
-                    <div
-                      className={`rounded-xl p-3 ${item.bg}`}
-                    >
+                    <div className={`rounded-xl p-3 ${item.bg}`}>
                       <Icon
                         size={28}
                         className={item.color}
@@ -144,123 +111,34 @@ function Dashboard() {
             })}
           </div>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          {stats?.expiringSoon > 0 && (
+            <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-5">
+              <div className="flex items-center gap-3">
+                <AlertTriangle
+                  className="text-red-400"
+                  size={24}
+                />
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
-              <h2 className="mb-6 text-xl font-semibold text-white">
-                Products by Category
-              </h2>
+                <div>
+                  <h2 className="text-lg font-semibold text-red-300">
+                    Expiry Alert
+                  </h2>
 
-              <div className="h-80">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={stats?.categoryStats}
-                      dataKey="products"
-                      nameKey="name"
-                      outerRadius={120}
-                      label
-                    >
-                      {stats?.categoryStats?.map(
-                        (
-                          _: any,
-                          index: number
-                        ) => (
-                          <Cell
-                            key={index}
-                            fill={
-                              COLORS[
-                                index %
-                                  COLORS.length
-                              ]
-                            }
-                          />
-                        )
-                      )}
-                    </Pie>
-
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                  <p className="text-slate-300">
+                    {stats.expiringSoon} product
+                    {stats.expiringSoon > 1 ? "s are" : " is"} expiring within the next 30 days.
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
-              <h2 className="mb-6 text-xl font-semibold text-white">
-                Active vs Inactive
-              </h2>
-
-              <div className="h-80">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={stats?.statusStats}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={70}
-                      outerRadius={120}
-                    >
-                      {stats?.statusStats?.map(
-                        (
-                          _: any,
-                          index: number
-                        ) => (
-                          <Cell
-                            key={index}
-                            fill={
-                              COLORS[
-                                index %
-                                  COLORS.length
-                              ]
-                            }
-                          />
-                        )
-                      )}
-                    </Pie>
-
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-          </div>
-                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
-            <h2 className="mb-6 text-xl font-semibold text-white">
-              Inventory Value by Category
-            </h2>
-
-            <div className="h-96">
-              <ResponsiveContainer>
-                <BarChart
-                  data={stats?.categoryStats}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-
-                  <XAxis dataKey="name" />
-
-                  <YAxis />
-
-                  <Tooltip />
-
-                  <Legend />
-
-                  <Bar
-                    dataKey="inventoryValue"
-                    fill="#3b82f6"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          )}
 
           <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
             <h2 className="mb-4 text-xl font-semibold text-white">
               Recent Products
             </h2>
 
-            {stats?.recentProducts?.length ===
-            0 ? (
+            {stats?.recentProducts?.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-700 p-10 text-center text-slate-400">
                 No recent products found.
               </div>
@@ -292,35 +170,32 @@ function Dashboard() {
                   </thead>
 
                   <tbody>
-                    {stats?.recentProducts?.map(
-                      (product: any) => (
-                        <tr
-                          key={product._id}
-                          className="border-b border-slate-800"
-                        >
-                          <td className="px-4 py-3 text-white">
-                            {product.productName}
-                          </td>
+                    {stats.recentProducts.map((product: any) => (
+                      <tr
+                        key={product._id}
+                        className="border-b border-slate-800"
+                      >
+                        <td className="px-4 py-3 text-white">
+                          {product.productName}
+                        </td>
 
-                          <td className="px-4 py-3 text-slate-300">
-                            {product.sku}
-                          </td>
+                        <td className="px-4 py-3 text-slate-300">
+                          {product.sku}
+                        </td>
 
-                          <td className="px-4 py-3 text-slate-300">
-                            {product.category}
-                          </td>
+                        <td className="px-4 py-3 text-slate-300">
+                          {product.category}
+                        </td>
 
-                          <td className="px-4 py-3 text-slate-300">
-                            {product.quantity}
-                          </td>
+                        <td className="px-4 py-3 text-slate-300">
+                          {product.quantity}
+                        </td>
 
-                          <td className="px-4 py-3 text-slate-300">
-                            ₹
-                            {product.unitPrice}
-                          </td>
-                        </tr>
-                      )
-                    )}
+                        <td className="px-4 py-3 text-slate-300">
+                          ₹{product.unitPrice}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
