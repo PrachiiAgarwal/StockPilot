@@ -12,3 +12,17 @@ export interface Product {
   expiryDate: string;
   status: string;
 }
+
+export interface ProductFormData {
+  productName: string;
+  sku: string;
+  barcode: string;
+  category: string;
+  supplier: string;
+  warehouse: string;
+  quantity: number;
+  unitPrice: number;
+  reorderLevel: number;
+  expiryDate: string;
+  status: string;
+}

@@ -1,11 +1,7 @@
 import {
   LayoutDashboard,
   Package,
-  FolderOpen,
-  Truck,
-  Warehouse,
-  BarChart3,
-  Settings,
+  History,
   LogOut,
 } from "lucide-react";
 
@@ -22,24 +18,24 @@ const menuItems = [
     icon: Package,
     path: "/products",
   },
+  {
+    title: "Stock History",
+    icon: History,
+    path: "/stock-history",
+  },
 ];
 
 function Sidebar() {
   return (
-    <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between">
-
+    <aside className="flex w-64 flex-col justify-between border-r border-slate-800 bg-slate-950">
       <div>
-
-        <div className="p-6 border-b border-slate-800">
-
+        <div className="border-b border-slate-800 p-6">
           <h1 className="text-2xl font-bold text-blue-500">
             StockPilot
           </h1>
-
         </div>
 
         <nav className="mt-6 px-3">
-
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -48,8 +44,7 @@ function Sidebar() {
                 key={item.title}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-4 py-3 mb-2 transition-all
-                  ${
+                  `mb-2 flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
                     isActive
                       ? "bg-blue-600 text-white"
                       : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -57,28 +52,19 @@ function Sidebar() {
                 }
               >
                 <Icon size={20} />
-
                 <span>{item.title}</span>
               </NavLink>
             );
           })}
-
         </nav>
-
       </div>
 
-      <div className="p-4 border-t border-slate-800">
-
-        <button
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-slate-300 hover:bg-red-500 hover:text-white transition-all"
-        >
+      <div className="border-t border-slate-800 p-4">
+        <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-slate-300 transition-all hover:bg-red-500 hover:text-white">
           <LogOut size={20} />
-
           Logout
         </button>
-
       </div>
-
     </aside>
   );
 }

@@ -1,49 +1,100 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { createProduct } from "../services/product.service";
 
-interface ProductFormData {
-  productName: string;
-  sku: string;
-  barcode: string;
-  category: string;
-  supplier: string;
-  warehouse: string;
-  quantity: number;
-  unitPrice: number;
-  reorderLevel: number;
-  expiryDate: string;
-  status: string;
-}
+import {
+  createProduct,
+  updateProduct,
+} from "../services/product.service";
+
+import type {
+  Product,
+  ProductFormData,
+} from "../types/product.types";
 
 interface ProductFormProps {
+  product?: Product | null;
   onSuccess: () => void;
 }
 
-function ProductForm({ onSuccess }: ProductFormProps) {
+function ProductForm({
+  product,
+  onSuccess,
+}: ProductFormProps) {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<ProductFormData>({
     defaultValues: {
+      productName: "",
+      sku: "",
+      barcode: "",
+      category: "",
+      supplier: "",
+      warehouse: "",
+      quantity: 0,
+      unitPrice: 0,
+      reorderLevel: 0,
+      expiryDate: "",
       status: "Active",
     },
   });
 
-  const onSubmit = async (data: ProductFormData) => {
+  useEffect(() => {
+    if (product) {
+      reset({
+        productName: product.productName,
+        sku: product.sku,
+        barcode: product.barcode,
+        category: product.category,
+        supplier: product.supplier,
+        warehouse: product.warehouse,
+        quantity: product.quantity,
+        unitPrice: product.unitPrice,
+        reorderLevel: product.reorderLevel,
+        expiryDate: product.expiryDate
+          ? product.expiryDate.substring(0, 10)
+          : "",
+        status: product.status,
+      });
+    } else {
+      reset({
+        productName: "",
+        sku: "",
+        barcode: "",
+        category: "",
+        supplier: "",
+        warehouse: "",
+        quantity: 0,
+        unitPrice: 0,
+        reorderLevel: 0,
+        expiryDate: "",
+        status: "Active",
+      });
+    }
+  }, [product, reset]);
+
+  const onSubmit = async (
+    data: ProductFormData
+  ) => {
     try {
-      await createProduct(data);
+      if (product) {
+        await updateProduct(product._id, data);
+      } else {
+        await createProduct(data);
+      }
 
       reset();
 
       onSuccess();
     } catch (error: any) {
-      console.error(error);
-
       alert(
-        error?.response?.data?.message ||
-          "Failed to create product."
+        error?.response?.data?.message ??
+          "Something went wrong."
       );
     }
   };
@@ -54,8 +105,7 @@ function ProductForm({ onSuccess }: ProductFormProps) {
       className="space-y-5"
     >
       <div className="grid grid-cols-2 gap-4">
-
-        <div>
+                <div>
           <label className="mb-2 block text-sm text-slate-300">
             Product Name
           </label>
@@ -145,8 +195,8 @@ function ProductForm({ onSuccess }: ProductFormProps) {
           <input
             type="number"
             {...register("quantity", {
-              required: true,
               valueAsNumber: true,
+              required: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -160,8 +210,8 @@ function ProductForm({ onSuccess }: ProductFormProps) {
           <input
             type="number"
             {...register("unitPrice", {
-              required: true,
               valueAsNumber: true,
+              required: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -175,8 +225,8 @@ function ProductForm({ onSuccess }: ProductFormProps) {
           <input
             type="number"
             {...register("reorderLevel", {
-              required: true,
               valueAsNumber: true,
+              required: true,
             })}
             className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
           />
@@ -207,7 +257,6 @@ function ProductForm({ onSuccess }: ProductFormProps) {
             <option value="Inactive">Inactive</option>
           </select>
         </div>
-
       </div>
 
       <div className="flex justify-end">
@@ -216,7 +265,13 @@ function ProductForm({ onSuccess }: ProductFormProps) {
           disabled={isSubmitting}
           className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSubmitting ? "Adding..." : "Add Product"}
+          {isSubmitting
+            ? product
+              ? "Updating..."
+              : "Adding..."
+            : product
+            ? "Update Product"
+            : "Add Product"}
         </button>
       </div>
     </form>

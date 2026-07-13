@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-
+const StockMovement = require("../models/stockMovement");
 
 // Create Product
 
@@ -19,12 +19,15 @@ const createProduct = async (req, res) => {
       status,
     } = req.body;
 
-    const existingProduct = await Product.findOne({ sku });
+    const existingProduct = await Product.findOne({
+      sku,
+    });
 
     if (existingProduct) {
       return res.status(400).json({
         success: false,
-        message: "Product with this SKU already exists",
+        message:
+          "Product with this SKU already exists",
       });
     }
 
@@ -43,9 +46,20 @@ const createProduct = async (req, res) => {
       createdBy: req.user.id,
     });
 
+    await StockMovement.create({
+      product: product._id,
+      productName: product.productName,
+      type: "CREATE",
+      quantity: quantity,
+      previousQuantity: 0,
+      newQuantity: quantity,
+      createdBy: req.user.id,
+    });
+
     res.status(201).json({
       success: true,
-      message: "Product created successfully",
+      message:
+        "Product created successfully",
       product,
     });
   } catch (error) {
@@ -56,13 +70,18 @@ const createProduct = async (req, res) => {
   }
 };
 
-
 // Get All Products
 
-const getAllProducts = async (req, res) => {
+const getAllProducts = async (
+  req,
+  res
+) => {
   try {
     const products = await Product.find()
-      .populate("createdBy", "fullName email")
+      .populate(
+        "createdBy",
+        "fullName email"
+      )
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -78,15 +97,20 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-
 // Get Product By ID
 
-const getProductById = async (req, res) => {
+const getProductById = async (
+  req,
+  res
+) => {
   try {
-    const product = await Product.findById(req.params.id).populate(
-      "createdBy",
-      "fullName email"
-    );
+    const product =
+      await Product.findById(
+        req.params.id
+      ).populate(
+        "createdBy",
+        "fullName email"
+      );
 
     if (!product) {
       return res.status(404).json({
@@ -106,31 +130,55 @@ const getProductById = async (req, res) => {
     });
   }
 };
-
 
 // Update Product
 
-const updateProduct = async (req, res) => {
+const updateProduct = async (
+  req,
+  res
+) => {
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const oldProduct =
+      await Product.findById(
+        req.params.id
+      );
 
-    if (!product) {
+    if (!oldProduct) {
       return res.status(404).json({
         success: false,
         message: "Product not found",
       });
     }
 
+    const product =
+      await Product.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+    await StockMovement.create({
+      product: product._id,
+      productName:
+        product.productName,
+      type: "UPDATE",
+      quantity:
+        product.quantity -
+        oldProduct.quantity,
+      previousQuantity:
+        oldProduct.quantity,
+      newQuantity:
+        product.quantity,
+      createdBy: req.user.id,
+    });
+
     res.status(200).json({
       success: true,
-      message: "Product updated successfully",
+      message:
+        "Product updated successfully",
       product,
     });
   } catch (error) {
@@ -141,12 +189,17 @@ const updateProduct = async (req, res) => {
   }
 };
 
-
 // Delete Product
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (
+  req,
+  res
+) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product =
+      await Product.findById(
+        req.params.id
+      );
 
     if (!product) {
       return res.status(404).json({
@@ -155,9 +208,26 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+    await StockMovement.create({
+      product: product._id,
+      productName:
+        product.productName,
+      type: "DELETE",
+      quantity: product.quantity,
+      previousQuantity:
+        product.quantity,
+      newQuantity: 0,
+      createdBy: req.user.id,
+    });
+
+    await Product.findByIdAndDelete(
+      req.params.id
+    );
+
     res.status(200).json({
       success: true,
-      message: "Product deleted successfully",
+      message:
+        "Product deleted successfully",
     });
   } catch (error) {
     res.status(500).json({

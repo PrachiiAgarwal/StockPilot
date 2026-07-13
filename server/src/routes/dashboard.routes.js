@@ -3,15 +3,15 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  getStockMovements,
-} = require("../controllers/stockMovement.controller");
+  getDashboardStats,
+} = require("../controllers/dashboard.controller");
 
 const authMiddleware = require("../middleware/auth.middleware");
 
 router.get(
-  "/",
+  "/stats",
   authMiddleware,
-  getStockMovements
+  getDashboardStats
 );
 
 module.exports = router;

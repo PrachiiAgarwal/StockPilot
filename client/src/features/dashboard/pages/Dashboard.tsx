@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   Package,
   IndianRupee,
@@ -5,41 +7,93 @@ import {
   CalendarClock,
 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total Products",
-    value: "24",
-    icon: Package,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  {
-    title: "Inventory Value",
-    value: "₹18,450",
-    icon: IndianRupee,
-    color: "text-green-500",
-    bg: "bg-green-500/10",
-  },
-  {
-    title: "Low Stock",
-    value: "3",
-    icon: AlertTriangle,
-    color: "text-yellow-500",
-    bg: "bg-yellow-500/10",
-  },
-  {
-    title: "Expiring Soon",
-    value: "5",
-    icon: CalendarClock,
-    color: "text-red-500",
-    bg: "bg-red-500/10",
-  },
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Legend,
+} from "recharts";
+
+import {
+  getDashboardStats,
+} from "../services/dashboard.service";
+
+const COLORS = [
+  "#3b82f6",
+  "#22c55e",
+  "#eab308",
+  "#ef4444",
+  "#8b5cf6",
+  "#14b8a6",
 ];
 
 function Dashboard() {
+  const [loading, setLoading] =
+    useState(true);
+
+  const [stats, setStats] =
+    useState<any>(null);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      const data =
+        await getDashboardStats();
+
+      setStats(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cards = [
+    {
+      title: "Total Products",
+      value:
+        stats?.totalProducts ?? 0,
+      icon: Package,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+    },
+    {
+      title: "Inventory Value",
+      value: `₹${stats?.inventoryValue ?? 0}`,
+      icon: IndianRupee,
+      color: "text-green-500",
+      bg: "bg-green-500/10",
+    },
+    {
+      title: "Low Stock",
+      value:
+        stats?.lowStockProducts ?? 0,
+      icon: AlertTriangle,
+      color: "text-yellow-500",
+      bg: "bg-yellow-500/10",
+    },
+    {
+      title: "Expiring Soon",
+      value:
+        stats?.expiringSoon ?? 0,
+      icon: CalendarClock,
+      color: "text-red-500",
+      bg: "bg-red-500/10",
+    },
+  ];
+
   return (
     <div className="space-y-8">
-
       <div>
         <h1 className="text-3xl font-bold text-white">
           Dashboard
@@ -50,58 +104,230 @@ function Dashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-4">
+      {loading ? (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
+          Loading Dashboard...
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-4">
+            {cards.map((item) => {
+              const Icon = item.icon;
 
-        {stats.map((item) => {
-          const Icon = item.icon;
-
-          return (
-            <div
-              key={item.title}
-              className="rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p className="text-sm text-slate-400">
-                    {item.title}
-                  </p>
-
-                  <h2 className="mt-3 text-3xl font-bold text-white">
-                    {item.value}
-                  </h2>
-
-                </div>
-
+              return (
                 <div
-                  className={`rounded-xl p-3 ${item.bg}`}
+                  key={item.title}
+                  className="rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-lg"
                 >
-                  <Icon
-                    size={28}
-                    className={item.color}
-                  />
-                </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-400">
+                        {item.title}
+                      </p>
 
+                      <h2 className="mt-3 text-3xl font-bold text-white">
+                        {item.value}
+                      </h2>
+                    </div>
+
+                    <div
+                      className={`rounded-xl p-3 ${item.bg}`}
+                    >
+                      <Icon
+                        size={28}
+                        className={item.color}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+
+            <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
+              <h2 className="mb-6 text-xl font-semibold text-white">
+                Products by Category
+              </h2>
+
+              <div className="h-80">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={stats?.categoryStats}
+                      dataKey="products"
+                      nameKey="name"
+                      outerRadius={120}
+                      label
+                    >
+                      {stats?.categoryStats?.map(
+                        (
+                          _: any,
+                          index: number
+                        ) => (
+                          <Cell
+                            key={index}
+                            fill={
+                              COLORS[
+                                index %
+                                  COLORS.length
+                              ]
+                            }
+                          />
+                        )
+                      )}
+                    </Pie>
+
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          );
-        })}
 
-      </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
+              <h2 className="mb-6 text-xl font-semibold text-white">
+                Active vs Inactive
+              </h2>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
+              <div className="h-80">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={stats?.statusStats}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={70}
+                      outerRadius={120}
+                    >
+                      {stats?.statusStats?.map(
+                        (
+                          _: any,
+                          index: number
+                        ) => (
+                          <Cell
+                            key={index}
+                            fill={
+                              COLORS[
+                                index %
+                                  COLORS.length
+                              ]
+                            }
+                          />
+                        )
+                      )}
+                    </Pie>
 
-        <h2 className="mb-4 text-xl font-semibold text-white">
-          Recent Products
-        </h2>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        <div className="rounded-lg border border-dashed border-slate-700 p-10 text-center text-slate-400">
-          Product table will appear here after backend integration.
-        </div>
+          </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
+            <h2 className="mb-6 text-xl font-semibold text-white">
+              Inventory Value by Category
+            </h2>
 
-      </div>
+            <div className="h-96">
+              <ResponsiveContainer>
+                <BarChart
+                  data={stats?.categoryStats}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
 
+                  <XAxis dataKey="name" />
+
+                  <YAxis />
+
+                  <Tooltip />
+
+                  <Legend />
+
+                  <Bar
+                    dataKey="inventoryValue"
+                    fill="#3b82f6"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-6">
+            <h2 className="mb-4 text-xl font-semibold text-white">
+              Recent Products
+            </h2>
+
+            {stats?.recentProducts?.length ===
+            0 ? (
+              <div className="rounded-lg border border-dashed border-slate-700 p-10 text-center text-slate-400">
+                No recent products found.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="border-b border-slate-800">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-slate-300">
+                        Product
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-slate-300">
+                        SKU
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-slate-300">
+                        Category
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-slate-300">
+                        Quantity
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-slate-300">
+                        Price
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {stats?.recentProducts?.map(
+                      (product: any) => (
+                        <tr
+                          key={product._id}
+                          className="border-b border-slate-800"
+                        >
+                          <td className="px-4 py-3 text-white">
+                            {product.productName}
+                          </td>
+
+                          <td className="px-4 py-3 text-slate-300">
+                            {product.sku}
+                          </td>
+
+                          <td className="px-4 py-3 text-slate-300">
+                            {product.category}
+                          </td>
+
+                          <td className="px-4 py-3 text-slate-300">
+                            {product.quantity}
+                          </td>
+
+                          <td className="px-4 py-3 text-slate-300">
+                            ₹
+                            {product.unitPrice}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

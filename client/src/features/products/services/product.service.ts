@@ -1,32 +1,87 @@
 import api from "../../../lib/axios";
-import type { Product } from "../types/product.types";
+import type { Product, ProductFormData } from "../types/product.types";
 
-interface ProductsResponse {
+export interface ProductsResponse {
   success: boolean;
   count: number;
   products: Product[];
 }
 
-export const getProducts = async (): Promise<ProductsResponse> => {
+export interface ProductResponse {
+  success: boolean;
+  product: Product;
+}
+
+const getAuthHeader = () => {
   const token = localStorage.getItem("token");
 
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+};
+
+// ======================
+// Get All Products
+// ======================
+
+export const getProducts = async (): Promise<ProductsResponse> => {
   const response = await api.get<ProductsResponse>("/products", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeader(),
   });
 
   return response.data;
 };
 
-export const createProduct = async (product: Omit<Product, "_id">) => {
-  const token = localStorage.getItem("token");
+// ======================
+// Create Product
+// ======================
 
-  const response = await api.post("/products", product, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const createProduct = async (
+  product: ProductFormData
+): Promise<ProductResponse> => {
+  const response = await api.post<ProductResponse>(
+    "/products",
+    product,
+    {
+      headers: getAuthHeader(),
+    }
+  );
+
+  return response.data;
+};
+
+// ======================
+// Update Product
+// ======================
+
+export const updateProduct = async (
+  id: string,
+  product: ProductFormData
+): Promise<ProductResponse> => {
+  const response = await api.put<ProductResponse>(
+    `/products/${id}`,
+    product,
+    {
+      headers: getAuthHeader(),
+    }
+  );
+
+  return response.data;
+};
+
+// ======================
+// Delete Product
+// ======================
+
+export const deleteProduct = async (
+  id: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await api.delete(
+    `/products/${id}`,
+    {
+      headers: getAuthHeader(),
+    }
+  );
 
   return response.data;
 };
