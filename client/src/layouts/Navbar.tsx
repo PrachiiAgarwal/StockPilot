@@ -1,50 +1,70 @@
 import {
   Bell,
-  Search,
+  Menu,
   Moon,
   Sun,
 } from "lucide-react";
 
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
 
-function Navbar() {
-  const user = JSON.parse(
-    localStorage.getItem("user") || "{}"
-  );
+interface NavbarProps {
+  openSidebar: () => void;
+}
 
+function Navbar({
+  openSidebar,
+}: NavbarProps) {
   const { theme, toggleTheme } =
     useTheme();
 
+  const { user } = useAuth();
+
   return (
     <header
-      className={`flex h-20 items-center justify-between border-b px-8 transition-all duration-300 ${
+      className={`flex h-20 items-center justify-between border-b px-4 transition-all duration-300 sm:px-6 lg:px-8 ${
         theme === "dark"
           ? "border-slate-800 bg-slate-950"
           : "border-slate-200 bg-white"
       }`}
     >
-      <div className="relative w-[420px]">
-        <Search
-          size={20}
-          className={`absolute left-4 top-1/2 -translate-y-1/2 ${
-            theme === "dark"
-              ? "text-slate-400"
-              : "text-slate-500"
-          }`}
-        />
+      {/* Left */}
 
-        <input
-          type="text"
-          placeholder="Search products..."
-          className={`w-full rounded-xl border py-3 pl-12 pr-4 outline-none transition ${
+      <div className="flex items-center gap-4">
+
+        <button
+          onClick={openSidebar}
+          className={`rounded-lg p-2 lg:hidden ${
             theme === "dark"
-              ? "border-slate-700 bg-slate-900 text-white focus:border-blue-500"
-              : "border-slate-300 bg-slate-100 text-slate-900 focus:border-blue-500"
+              ? "hover:bg-slate-800"
+              : "hover:bg-slate-200"
           }`}
-        />
+        >
+          <Menu
+            size={24}
+            className={
+              theme === "dark"
+                ? "text-white"
+                : "text-slate-900"
+            }
+          />
+        </button>
+
+        <h2
+          className={`hidden text-2xl font-bold sm:block ${
+            theme === "dark"
+              ? "text-white"
+              : "text-slate-900"
+          }`}
+        >
+          StockPilot
+        </h2>
+
       </div>
 
-      <div className="flex items-center gap-5">
+      {/* Right */}
+
+      <div className="flex items-center gap-3 sm:gap-5">
 
         <button
           onClick={toggleTheme}
@@ -87,7 +107,8 @@ function Navbar() {
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-lg font-semibold text-white">
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-base font-semibold text-white sm:h-12 sm:w-12 sm:text-lg">
             {user?.fullName
               ? user.fullName
                   .charAt(0)
@@ -95,7 +116,8 @@ function Navbar() {
               : "U"}
           </div>
 
-          <div>
+          <div className="hidden sm:block">
+
             <p
               className={`font-semibold ${
                 theme === "dark"
@@ -115,8 +137,11 @@ function Navbar() {
             >
               Administrator
             </p>
+
           </div>
+
         </div>
+
       </div>
     </header>
   );

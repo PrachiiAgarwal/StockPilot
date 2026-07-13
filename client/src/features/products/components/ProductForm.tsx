@@ -36,9 +36,9 @@ function ProductForm({
       category: "",
       supplier: "",
       warehouse: "",
-      quantity: 0,
-      unitPrice: 0,
-      reorderLevel: 0,
+      quantity: undefined,
+      unitPrice: undefined,
+      reorderLevel: undefined,
       expiryDate: "",
       status: "Active",
     },
@@ -47,18 +47,29 @@ function ProductForm({
   useEffect(() => {
     if (product) {
       reset({
-        productName: product.productName,
+        productName:
+          product.productName,
         sku: product.sku,
         barcode: product.barcode,
-        category: product.category,
-        supplier: product.supplier,
-        warehouse: product.warehouse,
-        quantity: product.quantity,
-        unitPrice: product.unitPrice,
-        reorderLevel: product.reorderLevel,
-        expiryDate: product.expiryDate
-          ? product.expiryDate.substring(0, 10)
-          : "",
+        category:
+          product.category,
+        supplier:
+          product.supplier,
+        warehouse:
+          product.warehouse,
+        quantity:
+          product.quantity,
+        unitPrice:
+          product.unitPrice,
+        reorderLevel:
+          product.reorderLevel,
+        expiryDate:
+          product.expiryDate
+            ? product.expiryDate.substring(
+                0,
+                10
+              )
+            : "",
         status: product.status,
       });
     } else {
@@ -69,9 +80,10 @@ function ProductForm({
         category: "",
         supplier: "",
         warehouse: "",
-        quantity: 0,
-        unitPrice: 0,
-        reorderLevel: 0,
+        quantity: undefined,
+        unitPrice: undefined,
+        reorderLevel:
+          undefined,
         expiryDate: "",
         status: "Active",
       });
@@ -83,7 +95,10 @@ function ProductForm({
   ) => {
     try {
       if (product) {
-        await updateProduct(product._id, data);
+        await updateProduct(
+          product._id,
+          data
+        );
       } else {
         await createProduct(data);
       }
@@ -93,7 +108,8 @@ function ProductForm({
       onSuccess();
     } catch (error: any) {
       alert(
-        error?.response?.data?.message ??
+        error?.response?.data
+          ?.message ??
           "Something went wrong."
       );
     }
@@ -101,39 +117,54 @@ function ProductForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(
+        onSubmit
+      )}
       className="space-y-5"
     >
-      <div className="grid grid-cols-2 gap-4">
-                <div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+        <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Product Name
           </label>
 
           <input
-            {...register("productName", {
-              required: "Product Name is required",
-            })}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            {...register(
+              "productName",
+              {
+                required:
+                  "Product Name is required",
+              }
+            )}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
 
           {errors.productName && (
             <p className="mt-1 text-sm text-red-500">
-              {errors.productName.message}
+              {
+                errors.productName
+                  .message
+              }
             </p>
           )}
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             SKU
           </label>
 
           <input
             {...register("sku", {
-              required: "SKU is required",
+              required:
+                "SKU is required",
             })}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
 
           {errors.sku && (
@@ -141,53 +172,68 @@ function ProductForm({
               {errors.sku.message}
             </p>
           )}
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Barcode
           </label>
 
           <input
             {...register("barcode")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Category
           </label>
 
           <input
-            {...register("category")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            {...register(
+              "category"
+            )}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Supplier
           </label>
 
           <input
-            {...register("supplier")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            {...register(
+              "supplier"
+            )}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Warehouse
           </label>
 
           <input
-            {...register("warehouse")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            {...register(
+              "warehouse"
+            )}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
-        </div>
 
-        <div>
+        </div>
+                <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Quantity
           </label>
@@ -198,11 +244,13 @@ function ProductForm({
               valueAsNumber: true,
               required: true,
             })}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Unit Price
           </label>
@@ -213,11 +261,13 @@ function ProductForm({
               valueAsNumber: true,
               required: true,
             })}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Reorder Level
           </label>
@@ -228,11 +278,13 @@ function ProductForm({
               valueAsNumber: true,
               required: true,
             })}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
         <div>
+
           <label className="mb-2 block text-sm text-slate-300">
             Expiry Date
           </label>
@@ -240,30 +292,41 @@ function ProductForm({
           <input
             type="date"
             {...register("expiryDate")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           />
+
         </div>
 
-        <div className="col-span-2">
+        <div className="md:col-span-2">
+
           <label className="mb-2 block text-sm text-slate-300">
             Status
           </label>
 
           <select
             {...register("status")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
           >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="Active">
+              Active
+            </option>
+
+            <option value="Inactive">
+              Inactive
+            </option>
+
           </select>
+
         </div>
+
       </div>
 
       <div className="flex justify-end">
+
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {isSubmitting
             ? product
@@ -273,7 +336,9 @@ function ProductForm({
             ? "Update Product"
             : "Add Product"}
         </button>
+
       </div>
+
     </form>
   );
 }

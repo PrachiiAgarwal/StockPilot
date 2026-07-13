@@ -2,7 +2,9 @@ const Product = require("../models/product");
 
 const getDashboardStats = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({
+      createdBy: req.user.id,
+    });
 
     const totalProducts = products.length;
 
@@ -47,7 +49,10 @@ const getDashboardStats = async (req, res) => {
     const expiringSoon =
       expiringSoonProducts.length;
 
-    const recentProducts = await Product.find()
+    const recentProducts =
+      await Product.find({
+       createdBy: req.user.id,
+     })
       .sort({ createdAt: -1 })
       .limit(5);
 

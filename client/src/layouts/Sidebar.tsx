@@ -3,6 +3,7 @@ import {
   Package,
   History,
   LogOut,
+  X,
 } from "lucide-react";
 
 import {
@@ -11,6 +12,12 @@ import {
 } from "react-router-dom";
 
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+
+interface SidebarProps {
+  isOpen: boolean;
+  closeSidebar: () => void;
+}
 
 const menuItems = [
   {
@@ -30,29 +37,42 @@ const menuItems = [
   },
 ];
 
-function Sidebar() {
+function Sidebar({
+  isOpen,
+  closeSidebar,
+}: SidebarProps) {
   const navigate = useNavigate();
 
   const { theme } = useTheme();
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  const { logout } = useAuth();
 
-    navigate("/login");
+  const handleLogout = () => {
+    logout();
+
+    navigate("/login", {
+      replace: true,
+    });
+
+    closeSidebar();
   };
 
   return (
     <aside
-      className={`flex h-screen w-64 flex-col justify-between border-r transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-50 flex h-screen w-64 flex-col justify-between border-r transition-all duration-300 lg:static lg:translate-x-0 ${
+        isOpen
+          ? "translate-x-0"
+          : "-translate-x-full"
+      } ${
         theme === "dark"
           ? "border-slate-800 bg-slate-950"
           : "border-slate-300 bg-white"
       }`}
     >
       <div>
+
         <div
-          className={`border-b p-6 ${
+          className={`flex items-center justify-between border-b p-6 ${
             theme === "dark"
               ? "border-slate-800"
               : "border-slate-300"
@@ -61,16 +81,32 @@ function Sidebar() {
           <h1 className="text-3xl font-bold text-blue-600">
             StockPilot
           </h1>
+
+          <button
+            onClick={closeSidebar}
+            className="lg:hidden"
+          >
+            <X
+              size={26}
+              className={
+                theme === "dark"
+                  ? "text-white"
+                  : "text-slate-900"
+              }
+            />
+          </button>
+
         </div>
 
         <nav className="mt-6 px-3">
-          {menuItems.map((item) => {
+                      {menuItems.map((item) => {
             const Icon = item.icon;
 
             return (
               <NavLink
                 key={item.title}
                 to={item.path}
+                onClick={closeSidebar}
                 className={({ isActive }) =>
                   `mb-2 flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                     isActive
@@ -97,7 +133,7 @@ function Sidebar() {
         }`}
       >
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-500 transition hover:bg-red-600 hover:text-white"
         >
           <LogOut size={20} />

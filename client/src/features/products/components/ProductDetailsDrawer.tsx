@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import type { Product } from "../types/product.types";
+import type { ReactNode } from "react";
 
 interface ProductDetailsDrawerProps {
   isOpen: boolean;
@@ -33,16 +34,22 @@ function ProductDetailsDrawer({
 
   return (
     <>
+      {/* Overlay */}
+
       <div
-        className="fixed inset-0 z-40 bg-black/50"
+        className="fixed inset-0 z-40 bg-black/60"
         onClick={onClose}
       />
 
-      <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-md flex-col border-l border-slate-700 bg-slate-950 shadow-2xl">
+      {/* Drawer */}
 
-        <div className="flex items-center justify-between border-b border-slate-800 p-6">
+      <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-full flex-col border-l border-slate-700 bg-slate-950 shadow-2xl sm:max-w-md lg:max-w-lg">
 
-          <h2 className="text-2xl font-bold text-white">
+        {/* Header */}
+
+        <div className="flex items-center justify-between border-b border-slate-800 p-4 sm:p-6">
+
+          <h2 className="text-xl font-bold text-white sm:text-2xl">
             Product Details
           </h2>
 
@@ -55,181 +62,118 @@ function ProductDetailsDrawer({
 
         </div>
 
-        <div className="flex-1 space-y-5 overflow-y-auto p-6">
+        {/* Body */}
 
-          <div className="flex items-center gap-3">
+        <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
 
-            <Package
-              className="text-blue-400"
-              size={22}
-            />
+          <InfoRow
+            icon={
+              <Package
+                className="text-blue-400"
+                size={22}
+              />
+            }
+            label="Product"
+            value={product.productName}
+          />
 
-            <div>
-              <p className="text-sm text-slate-400">
-                Product
-              </p>
+          <InfoRow
+            icon={
+              <Tag
+                className="text-green-400"
+                size={22}
+              />
+            }
+            label="SKU"
+            value={product.sku}
+          />
 
-              <p className="font-semibold text-white">
-                {product.productName}
-              </p>
-            </div>
+          <InfoRow
+            icon={
+              <Building2
+                className="text-purple-400"
+                size={22}
+              />
+            }
+            label="Category"
+            value={product.category}
+          />
 
-          </div>
+          <InfoRow
+            icon={
+              <Warehouse
+                className="text-yellow-400"
+                size={22}
+              />
+            }
+            label="Warehouse"
+            value={product.warehouse}
+          />
 
-          <div className="flex items-center gap-3">
+          <InfoRow
+            icon={
+              <Boxes
+                className="text-cyan-400"
+                size={22}
+              />
+            }
+            label="Supplier"
+            value={product.supplier}
+          />
 
-            <Tag
-              className="text-green-400"
-              size={22}
-            />
+          <InfoRow
+            icon={
+              <Boxes
+                className="text-orange-400"
+                size={22}
+              />
+            }
+            label="Quantity"
+            value={String(
+              product.quantity
+            )}
+          />
 
-            <div>
-              <p className="text-sm text-slate-400">
-                SKU
-              </p>
+          <InfoRow
+            icon={
+              <IndianRupee
+                className="text-emerald-400"
+                size={22}
+              />
+            }
+            label="Unit Price"
+            value={`₹${product.unitPrice}`}
+          />
 
-              <p className="text-white">
-                {product.sku}
-              </p>
-            </div>
+          <InfoRow
+            icon={
+              <AlertTriangle
+                className="text-red-400"
+                size={22}
+              />
+            }
+            label="Reorder Level"
+            value={String(
+              product.reorderLevel
+            )}
+          />
 
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <Building2
-              className="text-purple-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Category
-              </p>
-
-              <p className="text-white">
-                {product.category}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <Warehouse
-              className="text-yellow-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Warehouse
-              </p>
-
-              <p className="text-white">
-                {product.warehouse}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <Boxes
-              className="text-cyan-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Supplier
-              </p>
-
-              <p className="text-white">
-                {product.supplier}
-              </p>
-            </div>
-
-          </div>
-                    <div className="flex items-center gap-3">
-
-            <Boxes
-              className="text-orange-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Quantity
-              </p>
-
-              <p className="text-white">
-                {product.quantity}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <IndianRupee
-              className="text-emerald-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Unit Price
-              </p>
-
-              <p className="text-white">
-                ₹{product.unitPrice}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <AlertTriangle
-              className="text-red-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Reorder Level
-              </p>
-
-              <p className="text-white">
-                {product.reorderLevel}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <CalendarClock
-              className="text-pink-400"
-              size={22}
-            />
-
-            <div>
-              <p className="text-sm text-slate-400">
-                Expiry Date
-              </p>
-
-              <p className="text-white">
-                {product.expiryDate
-                  ? new Date(
-                      product.expiryDate
-                    ).toLocaleDateString()
-                  : "N/A"}
-              </p>
-            </div>
-
-          </div>
+          <InfoRow
+            icon={
+              <CalendarClock
+                className="text-pink-400"
+                size={22}
+              />
+            }
+            label="Expiry Date"
+            value={
+              product.expiryDate
+                ? new Date(
+                    product.expiryDate
+                  ).toLocaleDateString()
+                : "N/A"
+            }
+          />
 
           <div>
 
@@ -239,7 +183,8 @@ function ProductDetailsDrawer({
 
             <span
               className={`rounded-full px-3 py-1 text-sm font-medium ${
-                product.status === "Active"
+                product.status ===
+                "Active"
                   ? "bg-green-500/20 text-green-400"
                   : "bg-red-500/20 text-red-400"
               }`}
@@ -251,10 +196,14 @@ function ProductDetailsDrawer({
 
         </div>
 
-        <div className="flex gap-3 border-t border-slate-800 p-6">
+        {/* Footer */}
+
+        <div className="flex flex-col gap-3 border-t border-slate-800 p-4 sm:flex-row sm:p-6">
 
           <button
-            onClick={() => onEdit(product)}
+            onClick={() =>
+              onEdit(product)
+            }
             className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700"
           >
             <Pencil size={18} />
@@ -275,6 +224,38 @@ function ProductDetailsDrawer({
 
       </div>
     </>
+  );
+}
+
+interface InfoRowProps {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}
+
+function InfoRow({
+  icon,
+  label,
+  value,
+}: InfoRowProps) {
+  return (
+    <div className="flex items-center gap-3">
+
+      {icon}
+
+      <div>
+
+        <p className="text-sm text-slate-400">
+          {label}
+        </p>
+
+        <p className="break-words text-white">
+          {value}
+        </p>
+
+      </div>
+
+    </div>
   );
 }
 

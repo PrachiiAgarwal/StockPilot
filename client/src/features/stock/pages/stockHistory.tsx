@@ -92,52 +92,59 @@ function StockHistory() {
   return (
     <div className="space-y-6">
 
+      {/* Header */}
+
       <div>
 
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">
           Stock Movement History
         </h1>
 
-        <p className="mt-1 text-slate-400">
+        <p className="mt-2 text-sm text-slate-400 sm:text-base">
           Track every inventory change.
         </p>
 
       </div>
 
+      {/* Loading */}
+
       {loading ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
+
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-8 text-center text-slate-400 sm:p-10">
           Loading...
         </div>
+
       ) : (
+
         <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
 
-          <table className="min-w-full">
+          <table className="min-w-[850px] w-full">
 
             <thead className="border-b border-slate-800 bg-slate-900">
 
               <tr>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   Type
                 </th>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   Product
                 </th>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   Previous
                 </th>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   New
                 </th>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   Difference
                 </th>
 
-                <th className="px-6 py-4 text-left text-slate-300">
+                <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
                   Date
                 </th>
 
@@ -151,9 +158,10 @@ function StockHistory() {
                 (movement) => (
                   <tr
                     key={movement._id}
-                    className="border-b border-slate-800"
+                    className="border-b border-slate-800 transition hover:bg-slate-900"
                   >
-                    <td className="px-6 py-4">
+
+                    <td className="whitespace-nowrap px-4 py-4 lg:px-6">
 
                       <div className="flex items-center gap-2">
 
@@ -161,7 +169,7 @@ function StockHistory() {
                           movement.type
                         )}
 
-                        <span className="text-white">
+                        <span className="font-medium text-white">
                           {movement.type}
                         </span>
 
@@ -169,27 +177,33 @@ function StockHistory() {
 
                     </td>
 
-                    <td className="px-6 py-4 text-white">
+                    <td className="whitespace-nowrap px-4 py-4 text-white lg:px-6">
                       {movement.productName}
                     </td>
 
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                       {
                         movement.previousQuantity
                       }
                     </td>
 
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                       {movement.newQuantity}
                     </td>
 
-                    <td className="px-6 py-4 text-slate-300">
+                    <td
+                      className={`whitespace-nowrap px-4 py-4 font-medium lg:px-6 ${
+                        movement.quantity >= 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
                       {movement.quantity > 0
                         ? `+${movement.quantity}`
                         : movement.quantity}
                     </td>
 
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                       {new Date(
                         movement.createdAt
                       ).toLocaleString()}
@@ -204,7 +218,9 @@ function StockHistory() {
           </table>
 
         </div>
+
       )}
+
     </div>
   );
 }

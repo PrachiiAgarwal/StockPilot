@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import Login from "../features/auth/pages/Login";
+import Register from "../features/auth/pages/Register";
 
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import Products from "../features/products/pages/Products";
@@ -12,14 +13,40 @@ import StockHistory from "../features/stock/pages/stockHistory";
 
 import MainLayout from "../layouts/MainLayout";
 
+import { useAuth } from "../contexts/AuthContext";
+
 function AppRoutes() {
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
 
   return (
     <Routes>
+
       <Route
         path="/login"
-        element={<Login />}
+        element={
+          token ? (
+            <Navigate
+              to="/dashboard"
+              replace
+            />
+          ) : (
+            <Login />
+          )
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          token ? (
+            <Navigate
+              to="/dashboard"
+              replace
+            />
+          ) : (
+            <Register />
+          )
+        }
       />
 
       <Route
@@ -59,6 +86,7 @@ function AppRoutes() {
           path="stock-history"
           element={<StockHistory />}
         />
+
       </Route>
 
       <Route
@@ -70,6 +98,7 @@ function AppRoutes() {
           />
         }
       />
+
     </Routes>
   );
 }

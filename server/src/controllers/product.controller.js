@@ -1,7 +1,9 @@
 const Product = require("../models/Product");
 const StockMovement = require("../models/stockMovement");
 
+// ==========================
 // Create Product
+// ==========================
 
 const createProduct = async (req, res) => {
   try {
@@ -20,8 +22,9 @@ const createProduct = async (req, res) => {
     } = req.body;
 
     const existingProduct = await Product.findOne({
-      sku,
-    });
+     sku,
+     createdBy: req.user.id,
+   });
 
     if (existingProduct) {
       return res.status(400).json({
@@ -70,14 +73,18 @@ const createProduct = async (req, res) => {
   }
 };
 
+// ==========================
 // Get All Products
+// ==========================
 
 const getAllProducts = async (
   req,
   res
 ) => {
   try {
-    const products = await Product.find()
+    const products = await Product.find({
+      createdBy: req.user.id,
+    })
       .populate(
         "createdBy",
         "fullName email"
@@ -96,21 +103,19 @@ const getAllProducts = async (
     });
   }
 };
-
+// ==========================
 // Get Product By ID
+// ==========================
 
-const getProductById = async (
-  req,
-  res
-) => {
+const getProductById = async (req, res) => {
   try {
-    const product =
-      await Product.findById(
-        req.params.id
-      ).populate(
-        "createdBy",
-        "fullName email"
-      );
+    const product = await Product.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    }).populate(
+      "createdBy",
+      "fullName email"
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -131,17 +136,16 @@ const getProductById = async (
   }
 };
 
+// ==========================
 // Update Product
+// ==========================
 
-const updateProduct = async (
-  req,
-  res
-) => {
+const updateProduct = async (req, res) => {
   try {
-    const oldProduct =
-      await Product.findById(
-        req.params.id
-      );
+    const oldProduct = await Product.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    });
 
     if (!oldProduct) {
       return res.status(404).json({
@@ -150,20 +154,21 @@ const updateProduct = async (
       });
     }
 
-    const product =
-      await Product.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
+    const product = await Product.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        createdBy: req.user.id,
+      },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     await StockMovement.create({
       product: product._id,
-      productName:
-        product.productName,
+      productName: product.productName,
       type: "UPDATE",
       quantity:
         product.quantity -
@@ -189,17 +194,16 @@ const updateProduct = async (
   }
 };
 
+// ==========================
 // Delete Product
+// ==========================
 
-const deleteProduct = async (
-  req,
-  res
-) => {
+const deleteProduct = async (req, res) => {
   try {
-    const product =
-      await Product.findById(
-        req.params.id
-      );
+    const product = await Product.findOne({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    });
 
     if (!product) {
       return res.status(404).json({
@@ -210,8 +214,7 @@ const deleteProduct = async (
 
     await StockMovement.create({
       product: product._id,
-      productName:
-        product.productName,
+      productName: product.productName,
       type: "DELETE",
       quantity: product.quantity,
       previousQuantity:
@@ -220,9 +223,10 @@ const deleteProduct = async (
       createdBy: req.user.id,
     });
 
-    await Product.findByIdAndDelete(
-      req.params.id
-    );
+    await Product.findOneAndDelete({
+      _id: req.params.id,
+      createdBy: req.user.id,
+    });
 
     res.status(200).json({
       success: true,

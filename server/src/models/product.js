@@ -11,7 +11,6 @@ const productSchema = new mongoose.Schema(
     sku: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -66,10 +65,24 @@ const productSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {
     timestamps: true,
+  }
+);
+
+// Each user can have the same SKU,
+// but a single user cannot create
+// duplicate SKUs.
+productSchema.index(
+  {
+    createdBy: 1,
+    sku: 1,
+  },
+  {
+    unique: true,
   }
 );
 

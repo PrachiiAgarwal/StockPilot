@@ -1,21 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 import ProductTable from "../components/ProductTable";
 import AddProductModal from "../components/AddProductModal";
 import ProductDetailsDrawer from "../components/ProductDetailsDrawer";
+
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 import {
   getProducts,
   deleteProduct,
 } from "../services/product.service";
 
+import { downloadInventoryPDF } from "../services/pdf.service";
+
 import type { Product } from "../types/product.types";
 
 const PRODUCTS_PER_PAGE = 5;
 
 function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] =
+    useState<Product[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [searchTerm, setSearchTerm] =
     useState("");
@@ -23,9 +31,10 @@ function Products() {
   const [statusFilter, setStatusFilter] =
     useState("All");
 
-  const [sortBy, setSortBy] = useState<
-    "name" | "price" | "quantity"
-  >("name");
+  const [sortBy, setSortBy] =
+    useState<
+      "name" | "price" | "quantity"
+    >("name");
 
   const [sortOrder, setSortOrder] =
     useState<"asc" | "desc">("asc");
@@ -45,6 +54,12 @@ function Products() {
   const [viewProduct, setViewProduct] =
     useState<Product | null>(null);
 
+  const [confirmOpen, setConfirmOpen] =
+    useState(false);
+
+  const [deleteId, setDeleteId] =
+    useState<string | null>(null);
+
   useEffect(() => {
     loadProducts();
   }, []);
@@ -62,11 +77,16 @@ function Products() {
     try {
       setLoading(true);
 
-      const data = await getProducts();
+      const data =
+        await getProducts();
 
       setProducts(data.products);
     } catch (error) {
       console.error(error);
+
+      toast.error(
+        "Failed to load products."
+      );
     } finally {
       setLoading(false);
     }
@@ -83,11 +103,14 @@ function Products() {
       setViewProduct(null);
 
       await loadProducts();
+
+      toast.success(
+        "Product saved successfully."
+      );
     };
 
   const handleAdd = () => {
     setSelectedProduct(null);
-
     setIsModalOpen(true);
   };
 
@@ -95,7 +118,6 @@ function Products() {
     product: Product
   ) => {
     setViewProduct(product);
-
     setIsDrawerOpen(true);
   };
 
@@ -103,43 +125,45 @@ function Products() {
     product: Product
   ) => {
     setIsDrawerOpen(false);
-
     setViewProduct(null);
 
     setSelectedProduct(product);
-
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (
+  const handleDeleteClick = (
     id: string
   ) => {
-    const confirmDelete =
-      window.confirm(
-        "Are you sure you want to delete this product?"
-      );
-
-    if (!confirmDelete) return;
-
-    try {
-      await deleteProduct(id);
-
-      setIsDrawerOpen(false);
-
-      setViewProduct(null);
-
-      await loadProducts();
-
-      alert(
-        "Product deleted successfully."
-      );
-    } catch (error: any) {
-      alert(
-        error?.response?.data?.message ||
-          "Failed to delete product."
-      );
-    }
+    setDeleteId(id);
+    setConfirmOpen(true);
   };
+
+  const confirmDelete =
+    async () => {
+      if (!deleteId) return;
+
+      try {
+        await deleteProduct(deleteId);
+
+        await loadProducts();
+
+        setIsDrawerOpen(false);
+        setViewProduct(null);
+
+        toast.success(
+          "Product deleted successfully."
+        );
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data
+            ?.message ??
+            "Failed to delete product."
+        );
+      } finally {
+        setDeleteId(null);
+        setConfirmOpen(false);
+      }
+    };
 
   const filteredProducts =
     useMemo(() => {
@@ -147,30 +171,31 @@ function Products() {
         .toLowerCase()
         .trim();
 
-      const filtered = products.filter(
-        (product) => {
-          const matchesSearch =
-            product.productName
-              .toLowerCase()
-              .includes(query) ||
-            product.sku
-              .toLowerCase()
-              .includes(query) ||
-            product.category
-              .toLowerCase()
-              .includes(query);
+      const filtered =
+        products.filter(
+          (product) => {
+            const matchesSearch =
+              product.productName
+                .toLowerCase()
+                .includes(query) ||
+              product.sku
+                .toLowerCase()
+                .includes(query) ||
+              product.category
+                .toLowerCase()
+                .includes(query);
 
-          const matchesStatus =
-            statusFilter === "All" ||
-            product.status ===
-              statusFilter;
+            const matchesStatus =
+              statusFilter === "All" ||
+              product.status ===
+                statusFilter;
 
-          return (
-            matchesSearch &&
-            matchesStatus
-          );
-        }
-      );
+            return (
+              matchesSearch &&
+              matchesStatus
+            );
+          }
+        );
 
       filtered.sort((a, b) => {
         let comparison = 0;
@@ -226,30 +251,49 @@ function Products() {
   return (
     <div className="space-y-6">
 
-      <div className="flex items-center justify-between">
+      {/* Header */}
+
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
         <div>
 
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">
             Products
           </h1>
 
-          <p className="mt-1 text-slate-400">
+          <p className="mt-2 text-sm text-slate-400 sm:text-base">
             Manage your inventory
           </p>
 
         </div>
 
-        <button
-          onClick={handleAdd}
-          className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
-        >
-          + Add Product
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+
+          <button
+            onClick={() =>
+              downloadInventoryPDF(
+                filteredProducts
+              )
+            }
+            className="w-full rounded-lg bg-emerald-600 px-5 py-3 text-white transition hover:bg-emerald-700 sm:w-auto"
+          >
+            Download PDF
+          </button>
+
+          <button
+            onClick={handleAdd}
+            className="w-full rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700 sm:w-auto"
+          >
+            + Add Product
+          </button>
+
+        </div>
 
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      {/* Filters */}
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
 
         <input
           type="text"
@@ -259,8 +303,8 @@ function Products() {
               e.target.value
             )
           }
-          placeholder="Search by Product, SKU or Category..."
-          className="flex-1 rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none placeholder:text-slate-500"
+          placeholder="Search..."
+          className="rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none placeholder:text-slate-500 lg:col-span-2"
         />
 
         <select
@@ -270,7 +314,7 @@ function Products() {
               e.target.value
             )
           }
-          className="rounded-lg border border-slate-700 bg-slate-900 px-4 text-white outline-none"
+          className="rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none"
         >
           <option value="All">
             All Status
@@ -285,67 +329,77 @@ function Products() {
           </option>
         </select>
 
-        <select
-          value={sortBy}
-          onChange={(e) =>
-            setSortBy(
-              e.target.value as
-                | "name"
-                | "price"
-                | "quantity"
-            )
-          }
-          className="rounded-lg border border-slate-700 bg-slate-900 px-4 text-white outline-none"
-        >
-          <option value="name">
-            Sort by Name
-          </option>
+        <div className="grid grid-cols-2 gap-3">
 
-          <option value="price">
-            Sort by Price
-          </option>
+          <select
+            value={sortBy}
+            onChange={(e) =>
+              setSortBy(
+                e.target.value as
+                  | "name"
+                  | "price"
+                  | "quantity"
+              )
+            }
+            className="rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none"
+          >
+            <option value="name">
+              Name
+            </option>
 
-          <option value="quantity">
-            Sort by Quantity
-          </option>
-        </select>
+            <option value="price">
+              Price
+            </option>
 
-        <select
-          value={sortOrder}
-          onChange={(e) =>
-            setSortOrder(
-              e.target.value as
-                | "asc"
-                | "desc"
-            )
-          }
-          className="rounded-lg border border-slate-700 bg-slate-900 px-4 text-white outline-none"
-        >
-          <option value="asc">
-            Ascending
-          </option>
+            <option value="quantity">
+              Quantity
+            </option>
+          </select>
 
-          <option value="desc">
-            Descending
-          </option>
-        </select>
-              </div>
+          <select
+            value={sortOrder}
+            onChange={(e) =>
+              setSortOrder(
+                e.target.value as
+                  | "asc"
+                  | "desc"
+              )
+            }
+            className="rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none"
+          >
+            <option value="asc">
+              Asc
+            </option>
+
+            <option value="desc">
+              Desc
+            </option>
+          </select>
+
+        </div>
+
+      </div>
+            {/* Product Table */}
 
       {loading ? (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-10 text-center text-slate-400">
           Loading products...
         </div>
       ) : (
-        <ProductTable
-          products={paginatedProducts}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onView={handleView}
-        />
+        <div className="overflow-x-auto rounded-xl">
+          <ProductTable
+            products={paginatedProducts}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onView={handleView}
+          />
+        </div>
       )}
 
+      {/* Pagination */}
+
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
 
           <button
             onClick={() =>
@@ -354,7 +408,7 @@ function Products() {
               )
             }
             disabled={currentPage === 1}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-slate-700 px-4 py-2 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Previous
           </button>
@@ -367,7 +421,7 @@ function Products() {
                 onClick={() =>
                   setCurrentPage(index + 1)
                 }
-                className={`rounded-lg px-4 py-2 transition ${
+                className={`min-w-[42px] rounded-lg px-4 py-2 transition ${
                   currentPage === index + 1
                     ? "bg-blue-600 text-white"
                     : "border border-slate-700 text-white hover:bg-slate-800"
@@ -390,7 +444,7 @@ function Products() {
             disabled={
               currentPage === totalPages
             }
-            className="rounded-lg border border-slate-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-slate-700 px-4 py-2 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
           </button>
@@ -398,15 +452,21 @@ function Products() {
         </div>
       )}
 
+      {/* Add Product Modal */}
+
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedProduct(null);
         }}
-        onSuccess={handleProductSuccess}
+        onSuccess={
+          handleProductSuccess
+        }
         product={selectedProduct}
       />
+
+      {/* Product Drawer */}
 
       <ProductDetailsDrawer
         isOpen={isDrawerOpen}
@@ -416,7 +476,24 @@ function Products() {
           setViewProduct(null);
         }}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={
+          handleDeleteClick
+        }
+      />
+
+      {/* Delete Confirmation */}
+
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setDeleteId(null);
+        }}
       />
 
     </div>

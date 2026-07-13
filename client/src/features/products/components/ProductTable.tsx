@@ -1,4 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
+
 import type { Product } from "../types/product.types";
 
 interface ProductTableProps {
@@ -17,14 +18,14 @@ function ProductTable({
   const getExpiryStatus = (
     expiryDate?: string
   ) => {
-    if (!expiryDate)
+    if (!expiryDate) {
       return {
         text: "N/A",
         color: "text-slate-400",
       };
+    }
 
     const today = new Date();
-
     const expiry = new Date(expiryDate);
 
     const diff =
@@ -54,51 +55,60 @@ function ProductTable({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
-      <table className="min-w-full">
+
+      <table className="min-w-[1000px] w-full">
+
         <thead className="border-b border-slate-800 bg-slate-900">
+
           <tr>
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Product
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               SKU
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Category
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Quantity
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Price
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Expiry
             </th>
 
-            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-left text-sm font-semibold text-slate-300 lg:px-6">
               Status
             </th>
 
-            <th className="px-6 py-4 text-center text-sm font-semibold text-slate-300">
+            <th className="whitespace-nowrap px-4 py-4 text-center text-sm font-semibold text-slate-300 lg:px-6">
               Actions
             </th>
+
           </tr>
+
         </thead>
 
         <tbody>
+
           {products.map((product) => {
+
             const expiry =
               getExpiryStatus(
                 product.expiryDate
               );
 
             return (
+
               <tr
                 key={product._id}
                 onClick={() =>
@@ -106,33 +116,35 @@ function ProductTable({
                 }
                 className="cursor-pointer border-b border-slate-800 transition hover:bg-slate-900"
               >
-                <td className="px-6 py-4 text-white">
+
+                <td className="whitespace-nowrap px-4 py-4 font-medium text-white lg:px-6">
                   {product.productName}
                 </td>
 
-                <td className="px-6 py-4 text-slate-300">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                   {product.sku}
                 </td>
 
-                <td className="px-6 py-4 text-slate-300">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                   {product.category}
                 </td>
 
-                <td className="px-6 py-4 text-slate-300">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                   {product.quantity}
                 </td>
 
-                <td className="px-6 py-4 text-slate-300">
+                <td className="whitespace-nowrap px-4 py-4 text-slate-300 lg:px-6">
                   ₹{product.unitPrice}
                 </td>
 
                 <td
-                  className={`px-6 py-4 font-semibold ${expiry.color}`}
+                  className={`whitespace-nowrap px-4 py-4 font-semibold lg:px-6 ${expiry.color}`}
                 >
                   {expiry.text}
                 </td>
 
-                <td className="px-6 py-4">
+                <td className="whitespace-nowrap px-4 py-4 lg:px-6">
+
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                       product.status ===
@@ -143,20 +155,23 @@ function ProductTable({
                   >
                     {product.status}
                   </span>
+
                 </td>
 
                 <td
-                  className="px-6 py-4"
                   onClick={(e) =>
                     e.stopPropagation()
                   }
+                  className="whitespace-nowrap px-4 py-4 lg:px-6"
                 >
-                  <div className="flex justify-center gap-3">
+
+                  <div className="flex items-center justify-center gap-2">
+
                     <button
                       onClick={() =>
                         onEdit(product)
                       }
-                      className="rounded-lg p-2 text-blue-400 hover:bg-blue-500/10"
+                      className="rounded-lg p-2 text-blue-400 transition hover:bg-blue-500/10"
                     >
                       <Pencil size={18} />
                     </button>
@@ -167,17 +182,25 @@ function ProductTable({
                           product._id
                         )
                       }
-                      className="rounded-lg p-2 text-red-400 hover:bg-red-500/10"
+                      className="rounded-lg p-2 text-red-400 transition hover:bg-red-500/10"
                     >
                       <Trash2 size={18} />
                     </button>
+
                   </div>
+
                 </td>
+
               </tr>
+
             );
+
           })}
+
         </tbody>
+
       </table>
+
     </div>
   );
 }
