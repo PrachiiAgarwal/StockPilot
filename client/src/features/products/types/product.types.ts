@@ -2,7 +2,6 @@ export interface Product {
   _id: string;
   productName: string;
   sku: string;
-  barcode: string;
   category: string;
   supplier: string;
   warehouse: string;
@@ -16,7 +15,6 @@ export interface Product {
 export interface ProductFormData {
   productName: string;
   sku: string;
-  barcode: string;
   category: string;
   supplier: string;
   warehouse: string;

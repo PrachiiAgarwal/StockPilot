@@ -32,7 +32,6 @@ function ProductForm({
     defaultValues: {
       productName: "",
       sku: "",
-      barcode: "",
       category: "",
       supplier: "",
       warehouse: "",
@@ -50,7 +49,6 @@ function ProductForm({
         productName:
           product.productName,
         sku: product.sku,
-        barcode: product.barcode,
         category:
           product.category,
         supplier:
@@ -76,7 +74,6 @@ function ProductForm({
       reset({
         productName: "",
         sku: "",
-        barcode: "",
         category: "",
         supplier: "",
         warehouse: "",
@@ -175,18 +172,6 @@ function ProductForm({
 
         </div>
 
-        <div>
-
-          <label className="mb-2 block text-sm text-slate-300">
-            Barcode
-          </label>
-
-          <input
-            {...register("barcode")}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white outline-none transition focus:border-blue-500"
-          />
-
-        </div>
 
         <div>
 

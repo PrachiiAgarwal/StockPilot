@@ -10,7 +10,6 @@ const createProduct = async (req, res) => {
     const {
       productName,
       sku,
-      barcode,
       category,
       supplier,
       warehouse,
