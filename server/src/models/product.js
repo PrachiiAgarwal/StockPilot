@@ -14,11 +14,6 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    barcode: {
-      type: String,
-      default: "",
-    },
-
     category: {
       type: String,
       required: true,
